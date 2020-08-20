@@ -10,7 +10,7 @@ using jwt_asp_demo.Data;
 namespace jwt_demo.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20200819093913_InitialCreate")]
+    [Migration("20200820115840_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

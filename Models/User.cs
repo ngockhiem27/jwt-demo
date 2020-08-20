@@ -17,7 +17,9 @@ namespace jwt_asp_demo.Models
         [Required]
         public DateTime RegisteredAt { get; set; }
 
-        [Required]
         public Roles Role { get; set; }
+
+        [Required]
+        public int RoleId { get; set; }
     }
 }

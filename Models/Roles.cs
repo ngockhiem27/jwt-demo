@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace jwt_asp_demo.Models
@@ -10,6 +11,11 @@ namespace jwt_asp_demo.Models
         [Required]
         public string Role { get; set; }
 
-        public List<User> Users { get; set; }
+        public ICollection<User> Users { get; set; }
+
+        public Roles()
+        {
+            Users = new Collection<User>();
+        }
     }
 }

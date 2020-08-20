@@ -1,4 +1,9 @@
+using System;
+using System.Text;
 using jwt_asp_demo.Data;
+using jwt_demo.Infrastructure;
+using jwt_demo.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -7,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
 
 namespace jwt_demo
 {
@@ -25,6 +31,31 @@ namespace jwt_demo
 
             services.AddControllers();
             services.AddDbContext<AppDbContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("AppDbContext")));
+            var jwtTokenConfig = Configuration.GetSection("jwtTokenConfig").Get<JwtTokenConfig>();
+            services.AddSingleton(jwtTokenConfig);
+            services.AddAuthentication(opt =>
+            {
+                // set the default to authenticate and challenge schemes to Bearer
+                opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(opt =>
+            {
+                opt.RequireHttpsMetadata = true; //authentication requires HTTPS for the metadata address or authority
+                opt.SaveToken = true; //saves the JWT access token in the current HttpContext, so that we can retrieve it using the method await HttpContext.GetTokenAsync(“Bearer”, “access_token”) or something similar. If we want to set the SaveToken to be false, then we can save the JWT access token in claims, and then retrieve its value using the method: User.FindFirst("access_token")?.Value
+                opt.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = jwtTokenConfig.Issuer,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtTokenConfig.Secret)),
+                    ValidAudience = jwtTokenConfig.Audience,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.FromMinutes(1)
+                };
+            });
+            services.AddSingleton<IJwtAuthManager, JwtAuthManager>();
+            services.AddScoped<IUserService, UserService>();
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
@@ -52,6 +83,8 @@ namespace jwt_demo
             app.UseSpaStaticFiles();
 
             app.UseRouting();
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
@@ -60,15 +93,15 @@ namespace jwt_demo
                     pattern: "{controller}/{action=Index}/{id?}");
             });
 
-            app.UseSpa(spa =>
-            {
-                spa.Options.SourcePath = "ClientApp";
+            // app.UseSpa(spa =>
+            // {
+            //     spa.Options.SourcePath = "ClientApp";
 
-                if (env.IsDevelopment())
-                {
-                    spa.UseProxyToSpaDevelopmentServer("http://localhost:8000");
-                }
-            });
+            //     if (env.IsDevelopment())
+            //     {
+            //         spa.UseProxyToSpaDevelopmentServer("http://localhost:8000");
+            //     }
+            // });
         }
     }
 }

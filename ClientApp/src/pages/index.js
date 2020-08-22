@@ -1,16 +1,28 @@
-import React from "react"
-import { Link } from "gatsby"
-
+import React, { useContext } from "react"
+import Login from "../components/login"
 import Layout from "../components/layout"
-import SEO from "../components/seo"
+import { UserContext } from "../context/context"
+import { handleUnAuthorized } from "../services/auth"
+import TokenInfo from "../components/token-info"
+import { Grid } from "@material-ui/core"
 
-const IndexPage = () => (
-  <Layout>
-    <SEO title="Home" />
-    <h1>Hi people</h1>
-    <p>Welcome to the demo site.</p>
-    <Link to="/page-2/">Go to page 2</Link> <br />
-  </Layout>
-)
-
-export default IndexPage
+export default function Index() {
+  const { state, unAuthorized } = useContext(UserContext)
+  const refreshToken = () => {
+    state.userAuth.refresh().catch(err => {
+      handleUnAuthorized()
+      unAuthorized()
+    })
+  }
+  return (
+    <Layout>
+      {!state.isAuthenticated ? (
+        <Grid item xs={12} md={6}>
+          <Login />
+        </Grid>
+      ) : (
+        <TokenInfo refresh={() => refreshToken()} />
+      )}
+    </Layout>
+  )
+}

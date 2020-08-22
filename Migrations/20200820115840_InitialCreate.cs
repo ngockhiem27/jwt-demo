@@ -46,6 +46,10 @@ namespace jwt_demo.Migrations
                 name: "IX_Users_RoleId",
                 table: "Users",
                 column: "RoleId");
+
+            migrationBuilder.Sql("INSERT INTO Roles (Role) VALUES ('user')");
+            migrationBuilder.Sql("INSERT INTO Roles (Role) VALUES ('admin')");
+            migrationBuilder.Sql("INSERT INTO Users (UserName, Password, RegisteredAt, RoleId) VALUES ('admin', 'admin', '08/23/2020', 2)");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

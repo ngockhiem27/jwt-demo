@@ -85,7 +85,7 @@ namespace jwt_demo
                     options.WithOrigins("http://localhost:8000").AllowAnyMethod().AllowAnyHeader();
                 }
             );
-            //app.UseHttpsRedirection();
+            app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
 

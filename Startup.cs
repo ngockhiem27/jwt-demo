@@ -30,6 +30,7 @@ namespace jwt_demo
         {
 
             services.AddControllers();
+            services.AddCors();
             services.AddDbContext<AppDbContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("AppDbContext")));
             var jwtTokenConfig = Configuration.GetSection("jwtTokenConfig").Get<JwtTokenConfig>();
             services.AddSingleton(jwtTokenConfig);
@@ -78,7 +79,13 @@ namespace jwt_demo
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
+            app.UseCors(
+                options =>
+                {
+                    options.WithOrigins("http://localhost:8000").AllowAnyMethod().AllowAnyHeader();
+                }
+            );
+            //app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
 
@@ -93,15 +100,15 @@ namespace jwt_demo
                     pattern: "{controller}/{action=Index}/{id?}");
             });
 
-            // app.UseSpa(spa =>
-            // {
-            //     spa.Options.SourcePath = "ClientApp";
+            app.UseSpa(spa =>
+            {
+                spa.Options.SourcePath = "ClientApp";
 
-            //     if (env.IsDevelopment())
-            //     {
-            //         spa.UseProxyToSpaDevelopmentServer("http://localhost:8000");
-            //     }
-            // });
+                if (env.IsDevelopment())
+                {
+                    spa.UseProxyToSpaDevelopmentServer("http://localhost:8000");
+                }
+            });
         }
     }
 }

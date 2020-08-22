@@ -9,7 +9,7 @@ namespace jwt_demo.Services
 {
     public interface IUserService
     {
-        Task<User> RegisterUser(string username, string password, int roleId);
+        Task<User> RegisterUser(string username, string password, int roleId = 1);
         Task<User> GetUser(string username, string password);
         User GetUserProfile(string username);
         bool IsExistingUser(string username);
@@ -23,7 +23,7 @@ namespace jwt_demo.Services
             this.dbContext = dbContext;
         }
 
-        public async Task<User> RegisterUser(string username, string password, int roleId)
+        public async Task<User> RegisterUser(string username, string password, int roleId = 1)
         {
             if (IsExistingUser(username)) return null;
             var role = dbContext.Roles.Find(roleId);

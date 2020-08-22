@@ -30,7 +30,7 @@ namespace jwt_demo.Controllers
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
             if (!ModelState.IsValid) return BadRequest();
-            var user = await _userService.RegisterUser(request.Username, request.Password, request.RoleId);
+            var user = await _userService.RegisterUser(request.Username, request.Password);
             if (user == null)
                 return BadRequest("user already exist");
             var claims = new[] {
@@ -124,8 +124,6 @@ namespace jwt_demo.Controllers
         public string Username { get; set; }
         [Required]
         public string Password { get; set; }
-        [Required]
-        public int RoleId { get; set; }
     }
     public class LoginRequest
     {

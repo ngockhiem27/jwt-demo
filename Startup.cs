@@ -28,7 +28,6 @@ namespace jwt_demo
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
             services.AddControllers();
             services.AddCors();
             services.AddDbContext<AppDbContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("AppDbContext")));
@@ -57,6 +56,7 @@ namespace jwt_demo
             });
             services.AddSingleton<IJwtAuthManager, JwtAuthManager>();
             services.AddScoped<IUserService, UserService>();
+            services.AddHostedService<JwtRefreshTokenCache>();
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
@@ -79,17 +79,18 @@ namespace jwt_demo
                 app.UseHsts();
             }
 
+
+            app.UseHttpsRedirection();
+            app.UseStaticFiles();
+            app.UseSpaStaticFiles();
+
+            app.UseRouting();
             app.UseCors(
                 options =>
                 {
                     options.WithOrigins("http://localhost:8000").AllowAnyMethod().AllowAnyHeader();
                 }
             );
-            app.UseHttpsRedirection();
-            app.UseStaticFiles();
-            app.UseSpaStaticFiles();
-
-            app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
 
